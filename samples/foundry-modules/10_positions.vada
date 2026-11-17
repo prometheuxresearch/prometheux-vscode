@@ -1,0 +1,14 @@
+% Chain step 1: net position per account and security, written to Iceberg for the next programs.
+trade("t1", "acc1", "AAPL", "buy", 100).
+trade("t2", "acc1", "AAPL", "sell", 40).
+trade("t3", "acc1", "MSFT", "buy", 50).
+trade("t4", "acc2", "AAPL", "buy", 30).
+trade("t5", "acc2", "TSLA", "buy", 20).
+
+signed(Id, A, S, Q) <- trade(Id, A, S, "buy", Q).
+signed(Id, A, S, Q) <- trade(Id, A, S, "sell", Q0), Q = 0 - Q0.
+position(A, S, Net) <- signed(Id, A, S, Q), Net = msum(Q, <Id>).
+
+@model("position", "['Account:string','Security:string','Qty:int']").
+@bind("position", "iceberg", "foundry.`globex-4f2a91`.prometheux.ice", "px_test_positions").
+@output("position").

@@ -1,0 +1,752 @@
+{
+  "name": "prometheux",
+  "displayName": "Prometheux",
+  "description": "Build, run and explore Prometheux ontologies and Vadalog concepts from VS Code.",
+  "version": "0.1.0",
+  "preview": true,
+  "publisher": "prometheux",
+  "author": "Prometheux Limited",
+  "license": "SEE LICENSE IN LICENSE",
+  "private": true,
+  "icon": "icons/prometheux.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "homepage": "https://docs.prometheux.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prometheuxresearch/prometheux-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/prometheuxresearch/prometheux-vscode/issues"
+  },
+  "engines": {
+    "vscode": "^1.101.0",
+    "node": ">=22"
+  },
+  "categories": [
+    "Programming Languages",
+    "Notebooks",
+    "Data Science"
+  ],
+  "keywords": [
+    "prometheux",
+    "vadalog",
+    "datalog",
+    "ontology",
+    "knowledge graph"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onFileSystem:prometheux",
+    "onLanguage:vadalog",
+    "workspaceContains:**/*.{vada,vadalog}",
+    "workspaceContains:**/prometheux.yaml",
+    "onNotebook:prometheux-notebook"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Runs this workspace's Vadalog files on the Prometheux or Palantir Foundry account you connect, so it needs a trusted workspace."
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "Runs and lists files from the local file system."
+    }
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "prometheux",
+          "title": "Prometheux",
+          "icon": "icons/prometheux.svg"
+        }
+      ],
+      "panel": [
+        {
+          "id": "prometheux-panel",
+          "title": "Prometheux",
+          "icon": "icons/prometheux.svg"
+        }
+      ]
+    },
+    "views": {
+      "prometheux": [
+        {
+          "id": "prometheux.accounts",
+          "name": "Accounts",
+          "icon": "icons/prometheux.svg"
+        },
+        {
+          "id": "prometheux.ontologies",
+          "name": "Platform",
+          "icon": "icons/prometheux.svg",
+          "when": "prometheux.platform != foundry"
+        },
+        {
+          "id": "prometheux.local",
+          "name": "Local",
+          "icon": "icons/prometheux.svg"
+        }
+      ],
+      "prometheux-panel": [
+        {
+          "id": "prometheux.results",
+          "type": "webview",
+          "name": "Results"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "prometheux.accounts",
+        "contents": "Add an account for each platform you work with: Prometheux (dev, staging, a customer…) or Palantir Foundry. The extension follows the active one.\n[Add Prometheux Account](command:prometheux.addAccount?%5B%22prometheux%22%5D)\n[Add Palantir Foundry Account](command:prometheux.addAccount?%5B%22foundry%22%5D)"
+      },
+      {
+        "view": "prometheux.ontologies",
+        "when": "!prometheux.connected",
+        "contents": "The active account is not a Prometheux account, or there is none yet.\n[Add Prometheux Account](command:prometheux.addAccount?%5B%22prometheux%22%5D)\n[Switch Account](command:prometheux.switchAccount)"
+      },
+      {
+        "view": "prometheux.ontologies",
+        "when": "prometheux.connected",
+        "contents": "No ontologies yet.\n[New Ontology](command:prometheux.newOntology)"
+      },
+      {
+        "view": "prometheux.local",
+        "when": "workspaceFolderCount == 0",
+        "contents": "Open a folder to work with local Vadalog files and downloaded ontologies.\n[Open Folder](command:vscode.openFolder)\n[New Vadalog File](command:prometheux.newVadalogFile)"
+      },
+      {
+        "view": "prometheux.local",
+        "when": "workspaceFolderCount > 0",
+        "contents": "This workspace has no files yet.\n[New Vadalog File](command:prometheux.newVadalogFile)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "prometheux.signIn",
+        "title": "Add Account",
+        "category": "Prometheux",
+        "icon": "$(account)"
+      },
+      {
+        "command": "prometheux.refresh",
+        "title": "Refresh",
+        "category": "Prometheux",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "prometheux.selectCompute",
+        "title": "Select Compute",
+        "category": "Prometheux",
+        "icon": "$(server)"
+      },
+      {
+        "command": "prometheux.newOntology",
+        "title": "New Ontology",
+        "category": "Prometheux",
+        "icon": "$(add)"
+      },
+      {
+        "command": "prometheux.newConcept",
+        "title": "New Concept",
+        "category": "Prometheux",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "prometheux.openConcept",
+        "title": "Open Concept…",
+        "category": "Prometheux"
+      },
+      {
+        "command": "prometheux.openOntologyAsFolder",
+        "title": "Open Ontology as Workspace Folder",
+        "category": "Prometheux",
+        "icon": "$(root-folder-opened)"
+      },
+      {
+        "command": "prometheux.run",
+        "title": "Run",
+        "category": "Prometheux",
+        "icon": "$(play)"
+      },
+      {
+        "command": "prometheux.runConcept",
+        "title": "Run Concept",
+        "category": "Prometheux",
+        "icon": "$(play)"
+      },
+      {
+        "command": "prometheux.showResults",
+        "title": "Show Results",
+        "category": "Prometheux",
+        "icon": "$(table)"
+      },
+      {
+        "command": "prometheux.deleteConcept",
+        "title": "Delete Concept",
+        "category": "Prometheux",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "prometheux.validate",
+        "title": "Validate on Platform",
+        "category": "Prometheux",
+        "icon": "$(check)"
+      },
+      {
+        "command": "prometheux.createNotebook",
+        "title": "New Notebook",
+        "category": "Prometheux",
+        "icon": "$(notebook)"
+      },
+      {
+        "command": "prometheux.selectFragment",
+        "title": "Select Datalog± Fragment",
+        "category": "Prometheux"
+      },
+      {
+        "command": "prometheux.autoDetectFragment",
+        "title": "Auto-detect Datalog± Fragment",
+        "category": "Prometheux"
+      },
+      {
+        "command": "prometheux.showOutput",
+        "title": "Show Log",
+        "category": "Prometheux"
+      },
+      {
+        "command": "prometheux.downloadOntology",
+        "title": "Download to Workspace",
+        "category": "Prometheux",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "prometheux.updateFromPlatform",
+        "title": "Update from Platform",
+        "category": "Prometheux",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "prometheux.evaluateFile",
+        "title": "Run",
+        "category": "Prometheux",
+        "icon": "$(play)"
+      },
+      {
+        "command": "prometheux.newVadalogFile",
+        "title": "New Vadalog File",
+        "category": "Prometheux",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "prometheux.refreshLocal",
+        "title": "Refresh",
+        "category": "Prometheux",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "prometheux.fixFileAssociations",
+        "title": "Open Vadalog Files as Vadalog (fix file associations)",
+        "category": "Prometheux"
+      },
+      {
+        "command": "prometheux.applyToPlatform",
+        "title": "Apply to Platform",
+        "category": "Prometheux",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "prometheux.showLocalChanges",
+        "title": "Show Changes (px plan)",
+        "category": "Prometheux",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "prometheux.addAccount",
+        "title": "Add Account",
+        "category": "Prometheux",
+        "icon": "$(add)"
+      },
+      {
+        "command": "prometheux.switchAccount",
+        "title": "Switch Account",
+        "category": "Prometheux",
+        "icon": "$(account)"
+      },
+      {
+        "command": "prometheux.useAccount",
+        "title": "Use This Account",
+        "category": "Prometheux",
+        "icon": "$(check)"
+      },
+      {
+        "command": "prometheux.editAccount",
+        "title": "Edit Account",
+        "category": "Prometheux",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "prometheux.testAccount",
+        "title": "Test Account Connection",
+        "category": "Prometheux",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "prometheux.deleteAccount",
+        "title": "Delete Account",
+        "category": "Prometheux",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "prometheux.runFiles",
+        "title": "Run Vadalog",
+        "category": "Prometheux",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "prometheux.addAccount",
+          "when": "view == prometheux.accounts",
+          "group": "navigation@1"
+        },
+        {
+          "command": "prometheux.newOntology",
+          "when": "view == prometheux.ontologies && prometheux.connected",
+          "group": "navigation@1"
+        },
+        {
+          "command": "prometheux.refresh",
+          "when": "view == prometheux.ontologies",
+          "group": "navigation@2"
+        },
+        {
+          "command": "prometheux.newVadalogFile",
+          "when": "view == prometheux.local",
+          "group": "navigation@1"
+        },
+        {
+          "command": "prometheux.refreshLocal",
+          "when": "view == prometheux.local",
+          "group": "navigation@2"
+        },
+        {
+          "command": "prometheux.switchAccount",
+          "when": "view == prometheux.ontologies",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "prometheux.runConcept",
+          "when": "view == prometheux.ontologies && viewItem =~ /^concept/",
+          "group": "inline@1"
+        },
+        {
+          "command": "prometheux.showResults",
+          "when": "view == prometheux.ontologies && viewItem =~ /^concept/",
+          "group": "inline@2"
+        },
+        {
+          "command": "prometheux.runConcept",
+          "when": "view == prometheux.ontologies && viewItem =~ /^concept/",
+          "group": "1_run@1"
+        },
+        {
+          "command": "prometheux.showResults",
+          "when": "view == prometheux.ontologies && viewItem =~ /^concept/",
+          "group": "1_run@2"
+        },
+        {
+          "command": "prometheux.deleteConcept",
+          "when": "view == prometheux.ontologies && viewItem == concept",
+          "group": "9_delete"
+        },
+        {
+          "command": "prometheux.newConcept",
+          "when": "view == prometheux.ontologies && viewItem == ontology",
+          "group": "inline"
+        },
+        {
+          "command": "prometheux.newConcept",
+          "when": "view == prometheux.ontologies && viewItem == ontology",
+          "group": "1_new"
+        },
+        {
+          "command": "prometheux.openOntologyAsFolder",
+          "when": "view == prometheux.ontologies && viewItem == ontology",
+          "group": "2_open"
+        },
+        {
+          "command": "prometheux.downloadOntology",
+          "when": "view == prometheux.ontologies && viewItem == ontology",
+          "group": "inline"
+        },
+        {
+          "command": "prometheux.downloadOntology",
+          "when": "view == prometheux.ontologies && viewItem == ontology",
+          "group": "2_open@2"
+        },
+        {
+          "command": "prometheux.updateFromPlatform",
+          "when": "view == prometheux.local && viewItem == localOntology",
+          "group": "inline@2"
+        },
+        {
+          "command": "prometheux.updateFromPlatform",
+          "when": "view == prometheux.local && viewItem == localOntology",
+          "group": "1_sync@3"
+        },
+        {
+          "command": "prometheux.applyToPlatform",
+          "when": "view == prometheux.local && viewItem == localOntology",
+          "group": "inline@1"
+        },
+        {
+          "command": "prometheux.applyToPlatform",
+          "when": "view == prometheux.local && viewItem == localOntology",
+          "group": "1_sync@2"
+        },
+        {
+          "command": "prometheux.showLocalChanges",
+          "when": "view == prometheux.local && viewItem == localOntology",
+          "group": "1_sync@1"
+        },
+        {
+          "command": "prometheux.useAccount",
+          "when": "view == prometheux.accounts && viewItem =~ /^account\\..*\\.inactive$/",
+          "group": "inline@1"
+        },
+        {
+          "command": "prometheux.testAccount",
+          "when": "view == prometheux.accounts",
+          "group": "inline@2"
+        },
+        {
+          "command": "prometheux.editAccount",
+          "when": "view == prometheux.accounts && viewItem =~ /^account\\.stored/",
+          "group": "inline@3"
+        },
+        {
+          "command": "prometheux.deleteAccount",
+          "when": "view == prometheux.accounts && viewItem =~ /^account\\.stored/",
+          "group": "inline@4"
+        },
+        {
+          "command": "prometheux.useAccount",
+          "when": "view == prometheux.accounts && viewItem =~ /^account\\..*\\.inactive$/",
+          "group": "1_account@1"
+        },
+        {
+          "command": "prometheux.editAccount",
+          "when": "view == prometheux.accounts && viewItem =~ /^account\\.stored/",
+          "group": "1_account@2"
+        },
+        {
+          "command": "prometheux.testAccount",
+          "when": "view == prometheux.accounts",
+          "group": "1_account@3"
+        },
+        {
+          "command": "prometheux.deleteAccount",
+          "when": "view == prometheux.accounts && viewItem =~ /^account\\.stored/",
+          "group": "9_delete"
+        },
+        {
+          "command": "prometheux.runFiles",
+          "when": "view == prometheux.local && viewItem == localFile.vadalog",
+          "group": "inline"
+        },
+        {
+          "command": "prometheux.runFiles",
+          "when": "view == prometheux.local && (viewItem == localFile.vadalog || viewItem == localFolder)",
+          "group": "1_run@1"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "prometheux.run",
+          "when": "resourceLangId == vadalog || resourceScheme == prometheux",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "prometheux.runConcept",
+          "when": "resourceScheme == prometheux"
+        },
+        {
+          "command": "prometheux.showResults",
+          "when": "false"
+        },
+        {
+          "command": "prometheux.deleteConcept",
+          "when": "false"
+        },
+        {
+          "command": "prometheux.updateFromPlatform",
+          "when": "false"
+        },
+        {
+          "command": "prometheux.evaluateFile",
+          "when": "false"
+        },
+        {
+          "command": "prometheux.applyToPlatform",
+          "when": "false"
+        },
+        {
+          "command": "prometheux.showLocalChanges",
+          "when": "false"
+        },
+        {
+          "command": "prometheux.signIn",
+          "when": "false"
+        },
+        {
+          "command": "prometheux.runFiles",
+          "when": "editorLangId == vadalog"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "key": "ctrl+shift+enter",
+        "mac": "cmd+shift+enter",
+        "command": "prometheux.run",
+        "when": "editorTextFocus && (editorLangId == vadalog || resourceScheme == prometheux)"
+      }
+    ],
+    "languages": [
+      {
+        "id": "vadalog",
+        "extensions": [
+          ".vada",
+          ".vadalog"
+        ],
+        "aliases": [
+          "Vadalog",
+          "vadalog"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/vadalog-light.svg",
+          "dark": "./icons/vadalog-dark.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "vadalog",
+        "scopeName": "source.vadalog",
+        "path": "./syntaxes/vadalog.tmGrammar.json"
+      },
+      {
+        "path": "./syntaxes/vadalog-comment-injection.tmGrammar.json",
+        "scopeName": "comment.injection",
+        "injectTo": [
+          "source.vadalog"
+        ]
+      },
+      {
+        "path": "./syntaxes/vadoc-injection.tmGrammar.json",
+        "scopeName": "comment-block-documentation.injection",
+        "injectTo": [
+          "source.vadalog"
+        ]
+      }
+    ],
+    "notebooks": [
+      {
+        "type": "prometheux-notebook",
+        "displayName": "Prometheux Notebook",
+        "selector": [
+          {
+            "filenamePattern": "*.pxnb"
+          },
+          {
+            "filenamePattern": "*.vadanb"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "notebookRenderer": [
+      {
+        "id": "prometheux-results-renderer",
+        "displayName": "Prometheux results",
+        "entrypoint": "./dist/notebookRenderer.js",
+        "mimeTypes": [
+          "x-application/prometheux-results"
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "Prometheux",
+      "properties": {
+        "prometheux.run.mode": {
+          "type": "string",
+          "enum": [
+            "single",
+            "auto",
+            "all"
+          ],
+          "default": "auto",
+          "enumDescriptions": [
+            "Reuse every populated dependency; rebuild only what is missing.",
+            "Reuse fresh dependencies, rebuild stale ones, honour frozen checkpoints.",
+            "Rebuild everything reachable and override checkpoints."
+          ],
+          "description": "How much of the dependency chain a concept run rebuilds."
+        },
+        "prometheux.results.pageSize": {
+          "type": "number",
+          "default": 100,
+          "minimum": 1,
+          "maximum": 10000,
+          "description": "Rows per page when showing a concept's results."
+        },
+        "prometheux.results.maxRows": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 1,
+          "description": "Maximum rows rendered per table for evaluated programs."
+        },
+        "prometheux.results.reveal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reveal the Results panel when a run starts."
+        },
+        "prometheux.validateOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate Vadalog files and concepts on the platform when they are saved."
+        },
+        "prometheux.languageServer.diagnostics": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Show the local language server's diagnostics (syntax, wardedness and other Datalog± checks, inherited from Vadacode). Off by default: its grammar does not cover the whole Prometheux dialect yet (e.g. SQL rule bodies), so valid programs can be flagged. Platform validation on save is always authoritative."
+        },
+        "prometheux.pxPath": {
+          "type": "string",
+          "default": "px",
+          "markdownDescription": "Path to the [px CLI](https://github.com/prometheuxresearch/prometheux-cli), used by **Download to Workspace** and **Update from Platform** (`pipx install prometheux`)."
+        },
+        "prometheux.run.maxParallel": {
+          "type": "integer",
+          "default": 4,
+          "minimum": 1,
+          "markdownDescription": "Most files running at once when you run several files or a folder on a **Palantir Foundry** account. Prometheux accounts run them one at a time (the engine refuses concurrent runs)."
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[vadalog]": {
+        "editor.semanticHighlighting.enabled": true
+      }
+    },
+    "walkthroughs": [
+      {
+        "id": "prometheux.gettingStarted",
+        "title": "Get started with Prometheux",
+        "description": "Connect to your platform, then edit and run concepts from VS Code.",
+        "steps": [
+          {
+            "id": "signIn",
+            "title": "Connect to Prometheux",
+            "description": "Sign in to Prometheux Cloud, a self-hosted platform or a local backend. Your token is stored in VS Code's secret storage.\n[Sign In](command:prometheux.signIn)",
+            "media": {
+              "markdown": "resources/walkthrough/sign-in.md"
+            },
+            "completionEvents": [
+              "onContext:prometheux.connected"
+            ]
+          },
+          {
+            "id": "explore",
+            "title": "Browse your ontologies",
+            "description": "The Prometheux view lists your ontologies and their concepts. Click a concept to open it in an editor; saving it saves the concept.\n[Open the Prometheux view](command:prometheux.ontologies.focus)",
+            "media": {
+              "markdown": "resources/walkthrough/explore.md"
+            },
+            "completionEvents": [
+              "onView:prometheux.ontologies"
+            ]
+          },
+          {
+            "id": "run",
+            "title": "Run a concept",
+            "description": "Press Cmd/Ctrl+Shift+Enter in a concept (or the play button) to run it on the platform. Results open in the Prometheux panel.\n[Open Concept…](command:prometheux.openConcept)",
+            "media": {
+              "markdown": "resources/walkthrough/run.md"
+            },
+            "completionEvents": [
+              "onCommand:prometheux.run",
+              "onCommand:prometheux.runConcept"
+            ]
+          },
+          {
+            "id": "notebook",
+            "title": "Try a notebook",
+            "description": "Prometheux notebooks (.pxnb) run Vadalog cells on your platform without saving them as concepts.\n[New Notebook](command:prometheux.createNotebook)",
+            "media": {
+              "markdown": "resources/walkthrough/notebook.md"
+            },
+            "completionEvents": [
+              "onCommand:prometheux.createNotebook"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p server",
+    "test": "npm run test:unit && tsc -p server && mocha --ui tdd --timeout 20000 'out/tsc/server/src/test/*.js'",
+    "check:dialect": "tsc -p server && node scripts/parse-check.js test/dialect-corpus",
+    "parser:generate": "./parser/generate.sh",
+    "sdk:update": "npm --prefix ../prometheux-chain-ts run build && rm -f vendor/*.tgz && npm pack ../prometheux-chain-ts --pack-destination vendor && npm install ./vendor/prometheux-chain-*.tgz",
+    "package": "npm run build -- --production && mkdir -p build && vsce package --no-dependencies -o build/",
+    "vscode:prepublish": "npm run build -- --production",
+    "test:integration": "npm run build && node test/integration/runTest.mjs",
+    "test:foundry": "npm run build && node test/integration/runFoundryTest.mjs",
+    "test:unit": "esbuild src/programAssembly.ts --bundle --format=cjs --outfile=out/unit/programAssembly.cjs --log-level=warning && esbuild src/run/index.ts --bundle --platform=node --format=cjs --outfile=out/unit/run.cjs --log-level=warning && node --test 'test/unit/*.test.mjs'"
+  },
+  "dependencies": {
+    "antlr4": "^4.13.1-patch-1",
+    "comment-parser": "^1.4.9",
+    "graphology": "^0.25.4",
+    "graphology-components": "^1.5.4",
+    "graphology-dag": "^0.4.1",
+    "graphology-operators": "^1.6.1",
+    "prometheux-chain": "file:vendor/prometheux-chain-0.1.0.tgz",
+    "reflect-metadata": "^0.1.14",
+    "rxjs": "^7.8.2",
+    "typedi": "^0.10.0",
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.16",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.20.5",
+    "@types/vscode": "~1.101.0",
+    "@types/vscode-notebook-renderer": "^1.72.4",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.1.0",
+    "esbuild": "^0.28.2",
+    "glob": "^11.1.0",
+    "graphology-types": "^0.24.8",
+    "mocha": "^12.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9"
+  }
+}

@@ -1,0 +1,8 @@
+% Independent: customers over their credit limit, and by how much.
+customer("c1", "Acme", 12000, 10000).
+customer("c2", "Globex", 4000, 5000).
+customer("c3", "Initech", 7600, 7500).
+
+over_limit(Id, Name, Excess) <- customer(Id, Name, Balance, Limit), Excess = Balance - Limit, Excess > 0.
+
+@output("over_limit").

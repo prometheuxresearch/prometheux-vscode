@@ -1,0 +1,10 @@
+edge(1,2). edge(1,3). edge(2,4). edge(3,4). edge(4,5).
+paths_all(X,Y)        <- #PATHS(edge).
+paths_visited(X,Y,V)  <- #PATHS(edge, "visited=true").
+paths_depth2(X,Y)     <- #PATHS(edge, "max_depth=2").
+paths_from_1(X,Y,V)   <- #PATHS(edge, "visited=true,source=1").
+paths_1_to_5(X,Y,V)   <- #PATHS(edge, "visited=true,all_paths=true,source=1,target=5").
+paths_pairs(X,Y)      <- #PATHS(edge, "source_target_pairs=[1:5,2:4]").
+bfs_from_1(S, T, L)   <- #BFS(edge, "source=1").
+@output("paths_all"). @output("paths_visited"). @output("paths_depth2"). @output("paths_from_1").
+@output("paths_1_to_5"). @output("paths_pairs"). @output("bfs_from_1").

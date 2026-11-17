@@ -1,0 +1,4 @@
+employee("Mark"). employee("Ruth"). director("Jane"). hired("Ruth"). contractor("Mark").
+project(1,"Mark"). project(2,"Ruth"). project(3,"Jane").
+safeProjects(X,P) <- project(X,P), not contractor(P).
+@output("safeProjects").

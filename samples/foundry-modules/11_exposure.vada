@@ -1,0 +1,11 @@
+% Chain step 2: uses position (from 10_positions.vada): market value per account, written to Iceberg.
+price("AAPL", 190).
+price("MSFT", 410).
+price("TSLA", 250).
+
+holding_value(A, S, V) <- position(A, S, Q), price(S, P), V = Q * P.
+exposure(A, Total) <- holding_value(A, S, V), Total = msum(V, <S>).
+
+@model("exposure", "['Account:string','Value:int']").
+@bind("exposure", "iceberg", "foundry.`globex-4f2a91`.prometheux.ice", "px_test_exposure").
+@output("exposure").

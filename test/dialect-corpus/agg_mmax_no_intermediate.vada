@@ -1,0 +1,5 @@
+b(1, 2). b(1, 3). b(2, 5). b(2, 7).
+h(X, Z) <- b(X, Y), Z = mmax(Y), X > 0.
+b_msum(X, Z) <- b(X, Y), Z = msum(Y).
+b_sum(X, Z) <- b_msum(X, Y), Z = mmax(Y).
+@output("h"). @output("b_sum").

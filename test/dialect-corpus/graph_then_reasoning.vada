@@ -1,0 +1,9 @@
+edge_large(1,2,9). edge_large(3,4,6).
+edge_short(2,3,2). edge_short(4,1,1).
+unweighted_edge(1,5). unweighted_edge(5,2).
+edge(X,Y,Z) <- edge_large(X,Y,Z).
+edge(X,Y,Z) <- edge_short(X,Y,Z).
+edge(X,Y,1) <- unweighted_edge(X,Y).
+asp_function(X,Y,Z) <- #ASP(edge).
+max_asp(X,Y,M) <- asp_function(X,Y,Z), M = mmax(Z).
+@output("max_asp").

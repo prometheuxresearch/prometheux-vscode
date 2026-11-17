@@ -1,0 +1,4 @@
+n(10, 5).
+r(Z) <- n(A, B), Z = A / B * 100.
+r2(Z) <- n(A, B), Z = (A / B) * 100.
+@output("r"). @output("r2").

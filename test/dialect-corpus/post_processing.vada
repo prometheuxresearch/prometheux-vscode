@@ -1,0 +1,8 @@
+t(1,"b",5). t(1,"a",1). t(1,"c",1).
+p(X,Y,Z) <- t(X,Y,Z).
+@output("p"). @post("p","orderby(3,-2)").
+m(X,Y,Z) <- t(X,Y,Z).
+@output("m"). @post("m","min(3)").
+f(1,3,"a", 3). f(4,3,"a", 5). f(2,6,"b", 7). f(2,6,"b", 8). f(3,6,"b", 9).
+g(X,Y,Z,K) <- f(X,Y,Z,K).
+@output("g"). @post("g","argmax(4,<2,3>)"). @post("g","orderby(1)").

@@ -1,0 +1,9 @@
+a("prometheux"). b("oxford"). e("Elizabeth"). d("2025-05-10").
+q(Y,J) <- a(X), b(Y), J = substring(X,4,10).
+q2(N, S) <- e(N), S = substring(N, 6).
+month(M) <- d(D), M = substring(D, 6, 2).
+sp(J) <- a(X), J = split(concat(X, " engine"), " ").
+out(X) <- a(X), contains(X, "meth").
+neg(X) <- b(X), !contains(X, "meth").
+valid(X) <- b(X), X in {"oxford", "cambridge"}.
+@output("q"). @output("q2"). @output("month"). @output("sp"). @output("out"). @output("neg"). @output("valid").

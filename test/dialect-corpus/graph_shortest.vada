@@ -1,0 +1,7 @@
+edge(1,2,1.0). edge(1,3,1.0). edge(2,4,1.0). edge(3,4,1.0). edge(4,5,2.0). edge(2,5,5.0).
+asp_all(X,Y,Z)       <- #ASP(edge).
+asp_1_to_5(X,Y,Z)    <- #ASP(edge, "source=1,target=5").
+asp_visited(X,Y,Z,V) <- #ASP(edge, "source=1,visited=true").
+asp_pairs(X,Y,Z)     <- #ASP(edge, "source_target_pairs=[1:4,2:5]").
+sssp_from_1(S,T,D)   <- #SSSP(edge, "source=1").
+@output("asp_all"). @output("asp_1_to_5"). @output("asp_visited"). @output("asp_pairs"). @output("sssp_from_1").

@@ -1,0 +1,11 @@
+% Independent: who manages whom, directly or through others (recursion).
+reports_to("ana", "carla").
+reports_to("bruno", "carla").
+reports_to("carla", "dora").
+reports_to("eva", "bruno").
+reports_to("dora", "ceo").
+
+manages(M, E) <- reports_to(E, M).
+manages(M, E) <- reports_to(X, M), manages(X, E).
+
+@output("manages").

@@ -1,0 +1,43 @@
+# Publishes a release when a version tag is pushed: git tag v0.1.0 && git push origin v0.1.0.
+# The tag must match package.json's version. Needs two repository secrets:
+#   VSCE_PAT - Azure DevOps token with the Marketplace > Manage scope, for the "prometheux" publisher
+#   OVSX_PAT - Open VSX access token, for the "prometheux" namespace
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tag matches package.json
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "Tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
+      - run: npm run typecheck
+      - run: npm test
+      - run: xvfb-run -a npm run test:foundry
+      - run: npm run package
+      - name: Publish to the Visual Studio Marketplace
+        run: npx --yes @vscode/vsce publish --packagePath build/*.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Publish to Open VSX
+        run: npx --yes ovsx publish build/*.vsix
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+      - name: GitHub release with the .vsix
+        run: gh release create "$GITHUB_REF_NAME" build/*.vsix --title "$GITHUB_REF_NAME" --notes "See CHANGELOG.md."
+        env:
+          GH_TOKEN: ${{ github.token }}

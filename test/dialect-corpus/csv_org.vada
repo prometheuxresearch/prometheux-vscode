@@ -1,0 +1,20 @@
+% Who reports (directly or indirectly) to whom, and how much payroll each manager oversees.
+@bind("employee", "csv useHeaders=true", ".", "employees.csv").
+@mapping("employee", 0, "id", "int").
+@mapping("employee", 1, "name", "string").
+@mapping("employee", 2, "manager_id", "int").
+@mapping("employee", 3, "salary", "int").
+
+reports_to(E, M) <- employee(E, _, M, _), is_not_null(M).
+reports_to(E, B) <- reports_to(E, M), reports_to(M, B).
+
+payroll_under(M, Total) <- reports_to(E, M), employee(E, _, _, S), Total = msum(S, <E>).
+team_size(M, N) <- reports_to(_, M), N = mcount().
+
+manager_report(Name, Size, Total) <- employee(M, Name, _, _), team_size(M, Size), payroll_under(M, Total).
+
+@output("manager_report").
+@post("manager_report", "orderby(-3)").
+@bind("raw", "csv useHeaders=true", ".", "employees.csv").
+dept_count(D, N) <- raw(_, _, _, _, D), N = mcount().
+@output("dept_count").

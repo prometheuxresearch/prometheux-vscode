@@ -1,0 +1,7 @@
+balanceItem(1, 7, 2, 5). balanceItem(2, 2, 2, 7).
+error(E, I) <- balanceItem(I, X, Y, Z), X <> Y+Z.
+bi("loans", 23.0). bi("deposits", 20.0).
+operations(Q, Z, A) <- bi(I1,X), bi(I2,Y), I1=="loans", I2=="deposits", Z=X+Y, A=(X+Y)/2.
+contract("Mark",14). contract("Jeff",22).
+rich(X) <- contract(X,Y), Y>=20.
+@output("error"). @output("operations"). @output("rich").

@@ -1,0 +1,6 @@
+a("one", 3, "a", 10). a("one", 6, "c", 30). a("one", 1, "b", 20). a("one", 2, "c", 30).
+a("two", 5, "f", 60). a("two", 3, "e", 50). a("two", 6, "g", 70). a("two", 2, "d", 40). a("two", 3, "d", 40).
+ssum(X, Sum) <- a(X, Y, _, _), Sum = msum(Y).
+pmin(X, M) <- a(X, Y, _, _), M = mmin(Y).
+ccount(X, C) <- a(X, _, _, _), C = mcount().
+@output("ssum"). @output("pmin"). @output("ccount").

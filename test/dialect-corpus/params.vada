@@ -1,0 +1,4 @@
+@param("threshold", 3).
+score("x", 2). score("y", 5).
+high(N, S) <- score(N, S), S > ${threshold}.
+@output("high").

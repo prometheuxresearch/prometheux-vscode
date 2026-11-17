@@ -1,0 +1,4 @@
+edge(1,2). edge(3,2). edge(5,2). edge(3,1). edge(2,5).
+indegree(Y, J) <- edge(X, Y), J = msum(1, <X>).
+found(X) <- indegree(X, J), J > 2.
+@output("found").

@@ -1,0 +1,7 @@
+e("a","b"). e("a","e"). e("a","f"). e("b","d"). e("c","b"). e("c","e"). e("d","c"). e("d","h"). e("f","g").
+dc_total(N, DC) <- #DC(e).
+chain(1,2). chain(2,3). chain(3,4). chain(4,5). chain(5,6).
+bc_exact(N, BC) <- #BC(chain).
+cyc(1,2). cyc(2,3). cyc(3,4). cyc(4,1).
+pr(N, PR) <- #PR(cyc).
+@output("dc_total"). @output("bc_exact"). @output("pr").

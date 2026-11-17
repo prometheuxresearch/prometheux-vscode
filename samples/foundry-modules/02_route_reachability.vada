@@ -1,0 +1,12 @@
+% Independent: which cities can be reached from which, and in how many legs at least.
+leg("lisbon", "madrid").
+leg("madrid", "paris").
+leg("paris", "berlin").
+leg("berlin", "warsaw").
+leg("rome", "paris").
+
+reachable(A, B, 1) <- leg(A, B).
+reachable(A, C, N) <- reachable(A, B, N0), leg(B, C), N = N0 + 1.
+fewest_legs(A, B, N) <- reachable(A, B, N0), N = mmin(N0).
+
+@output("fewest_legs").

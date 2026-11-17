@@ -1,0 +1,5 @@
+e(1,2). e(2,3). e(3,1).
+w(1,2,1). w(2,3,2). w(3,1,4).
+bfs(X,Y,L) <- #BFS(e).
+sssp(S,T,D) <- #SSSP(w, "source=1").
+@output("bfs"). @output("sssp").

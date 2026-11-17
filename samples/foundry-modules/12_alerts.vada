@@ -1,0 +1,6 @@
+% Chain step 3: uses exposure (from 11_exposure.vada): accounts above the risk threshold.
+threshold(15000).
+
+alert(Account, Value, Reason) <- exposure(Account, Value), threshold(T), Value > T, Reason = "above threshold".
+
+@output("alert").

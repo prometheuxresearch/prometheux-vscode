@@ -1,0 +1,7 @@
+own("A","B",0.6). own("B","C",0.3). own("A","C",0.25). own("C","D",0.51). own("D","E",0.2). own("A","E",0.1).
+controls(X,X) <- own(X,_,_).
+has_shares(X,Z,Y,S) <- controls(X,Z), own(Z,Y,S).
+total(X,Y,T) <- has_shares(X,Z,Y,S), T = msum(S, <Z>).
+controls(X,Y) <- total(X,Y,T), T > 0.5.
+ctrl(X,Y) <- controls(X,Y), X != Y.
+@output("ctrl").

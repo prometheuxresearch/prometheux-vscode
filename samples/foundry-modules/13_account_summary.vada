@@ -1,0 +1,5 @@
+% Reads from two programs: position (10) and exposure (11). Runs after both.
+security_count(A, N) <- position(A, S, Q), Q > 0, N = msum(1, <S>).
+account_summary(A, N, V) <- security_count(A, N), exposure(A, V).
+
+@output("account_summary").

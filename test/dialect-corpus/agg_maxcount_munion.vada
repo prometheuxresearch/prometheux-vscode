@@ -1,0 +1,6 @@
+affects("Component1","Component2"). affects("Component3","Component2"). affects("Component4","Component2").
+affects("Component5","Component1"). affects("Component2","Component1"). affects("Component6","Component7").
+hotspot(C2, MaxCount) <- affects(_, C2), MaxCount = maxcount().
+c(15552,"Name"). c(15552,"Synonym"). c(15552,"Alternative").
+synonyms(Id, NewSynonyms) <- c(Id, Synonym), NewSynonyms = munion({}|Synonym).
+@output("hotspot"). @output("synonyms").
