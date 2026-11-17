@@ -22,6 +22,16 @@ you work with and switch between them from the status bar.
 
 ## Getting started
 
+To install from a clone of this repository (needs Node.js 22+):
+
+```bash
+git clone https://github.com/prometheuxresearch/prometheux-vscode.git
+cd prometheux-vscode
+./install.sh        # builds the extension and installs it into VS Code (or Cursor / VSCodium)
+```
+
+Then reload the editor (`Cmd/Ctrl+Shift+P` → **Developer: Reload Window**) and:
+
 1. Open the **Prometheux** view in the activity bar and click **Add Prometheux Account** or **Add
    Palantir Foundry Account** (see [Accounts](#accounts) for what each needs).
 2. Open a folder with `.vada` / `.vadalog` files, or create one with **New Vadalog File**.
