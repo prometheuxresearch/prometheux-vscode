@@ -5,3 +5,4 @@ export { annotations, FoundryBackend } from "./backend";
 export { modelAnnotation, planPrograms, runPlan, UPSTREAM_HEADER } from "./programPlan";
 export { resultsMessage, runFiles } from "./runFiles";
 export { excludeMatcher } from "../fileExclude";
+export { conceptTemplate, conceptToFile, fileToConcept, kindForSuffix, splitConceptFile, suffixFor } from "../conceptFormats";

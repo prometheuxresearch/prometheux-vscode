@@ -1,18 +1,18 @@
 import type { Concept, ConceptType, Ontology } from "prometheux-chain";
 import * as vscode from "vscode";
+import { kindForSuffix, splitConceptFile, suffixFor } from "./conceptFormats";
 import type { ConnectionManager } from "./connection";
 
 /** URI scheme of concepts opened from the platform: `prometheux:/<ontologyId>/<concept>.<ext>`. */
 export const SCHEME = "prometheux";
 
-const EXTENSIONS: Record<string, string> = { logic: "vada", sql: "sql", python: "py", cypher: "cypher" };
-
+/** The file suffix of a concept type: vada, sql, cypher, py, llm.md, context.yaml. */
 export function extensionFor(type: ConceptType): string {
-  return EXTENSIONS[type] ?? "txt";
+  return suffixFor(type);
 }
 
 export function typeForExtension(ext: string): ConceptType {
-  return Object.entries(EXTENSIONS).find(([, value]) => value === ext)?.[0] ?? "logic";
+  return kindForSuffix(ext);
 }
 
 export function conceptUri(ontologyId: string, conceptName: string, type: ConceptType): vscode.Uri {
@@ -30,9 +30,9 @@ export function parseUri(uri: vscode.Uri): { ontologyId?: string; concept?: Conc
   const [ontologyId, file, ...rest] = uri.path.split("/").filter(Boolean);
   if (!ontologyId || rest.length) return {};
   if (!file) return { ontologyId };
-  const dot = file.lastIndexOf(".");
-  if (dot <= 0) return { ontologyId };
-  return { ontologyId, concept: { ontologyId, conceptName: file.slice(0, dot), ext: file.slice(dot + 1) } };
+  const split = splitConceptFile(file);
+  if (!split) return { ontologyId };
+  return { ontologyId, concept: { ontologyId, conceptName: split.name, ext: split.suffix } };
 }
 
 const CACHE_TTL_MS = 5_000;

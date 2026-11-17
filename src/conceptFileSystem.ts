@@ -1,5 +1,6 @@
-import { type Concept, type JsonValue, NotFoundError } from "prometheux-chain";
+import { type Concept, type JsonObject, type JsonValue, NotFoundError } from "prometheux-chain";
 import * as vscode from "vscode";
+import { conceptToFile, fileToConcept } from "./conceptFormats";
 import { type ConceptStore, conceptUri, parseUri, SCHEME, typeForExtension } from "./concepts";
 import type { ComputeManager } from "./compute";
 import type { ConnectionManager } from "./connection";
@@ -7,9 +8,16 @@ import type { ConnectionManager } from "./connection";
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-/** The editable source of a concept: code without its binds (what the Prometheux editor shows). */
+/**
+ * The editable source of a concept: code without its binds (what the Prometheux editor shows),
+ * and for LLM / context concepts their settings too, in the files `px pull` writes.
+ */
 export function conceptSource(concept: Concept): string {
-  return concept.parsed?.code ?? "";
+  return conceptToFile({
+    concept_type: concept.concept_type,
+    code: concept.parsed?.code,
+    concept_config: concept.concept_config,
+  });
 }
 
 /**
@@ -118,11 +126,18 @@ export class ConceptFileSystem implements vscode.FileSystemProvider, vscode.Disp
     const conceptType = existing?.concept_type ?? typeForExtension(concept.ext);
     const binds = existing?.parsed?.binds;
     const hasBinds = !!binds && (binds.input.length > 0 || binds.output.length > 0);
-    const definition = decoder.decode(content);
+    let parsed: ReturnType<typeof fileToConcept>;
+    try {
+      parsed = fileToConcept(conceptType, decoder.decode(content));
+    } catch (error) {
+      throw vscode.FileSystemError.NoPermissions(error instanceof Error ? error.message : String(error));
+    }
+    const { definition, conceptConfig } = parsed;
     await this.connections.requireClient().concepts.save(concept.ontologyId, {
       definition:
         conceptType === "logic" ? ensureOutputAtom(definition, name, !!binds?.output.length) : definition,
       conceptType,
+      conceptConfig: conceptConfig as JsonObject | undefined,
       conceptName: name,
       outputPredicate: name,
       binds: hasBinds ? (binds as unknown as JsonValue) : undefined,

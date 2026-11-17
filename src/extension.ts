@@ -7,6 +7,7 @@ import { describeAccount, PLATFORM_LABELS } from "./accounts/model";
 import { testAccount } from "./accounts/testAccount";
 import { ComputeManager } from "./compute";
 import { ConceptFileSystem } from "./conceptFileSystem";
+import { CONCEPT_KINDS, conceptTemplate } from "./conceptFormats";
 import { ConceptStore, conceptUri, parseUri, SCHEME } from "./concepts";
 import { ConnectionManager } from "./connection";
 import { ConceptItem, OntologyExplorer, OntologyItem } from "./explorer";
@@ -30,10 +31,6 @@ let languageClient: LanguageClient | undefined;
 
 const CONCEPT_NAME = /^[a-z][A-Za-z0-9_]*$/;
 
-const TEMPLATES: Record<string, (name: string) => string> = {
-  logic: (name) => `% ${name}: describe what this concept means.\n${name}("example").\n\n@output("${name}").\n`,
-  sql: () => "SELECT 1 AS example\n",
-};
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -245,15 +242,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         throw new Error(`Concept '${name}' already exists in this ontology.`);
       }
       const type = await vscode.window.showQuickPick(
-        [
-          { label: "Vadalog", id: "logic" },
-          { label: "SQL", id: "sql" },
-        ],
-        { title: "Concept language" },
+        CONCEPT_KINDS.map((entry) => ({ label: entry.label, description: `.${entry.suffix}`, detail: entry.detail, id: entry.kind })),
+        { title: "Concept type" },
       );
       if (!type) return;
       const uri = conceptUri(ontologyId, name, type.id);
-      await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(TEMPLATES[type.id](name)));
+      await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(conceptTemplate(type.id, name)));
       await vscode.window.showTextDocument(uri);
     }),
 

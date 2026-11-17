@@ -99,6 +99,40 @@ function tests() {
     await vscode.workspace.fs.delete(file("smoke_sql", "sql"));
   });
 
+  test("creates Cypher, Python, LLM and context concepts as files, settings included", async () => {
+    const cases = [
+      { name: "smoke_cypher", ext: "cypher", type: "cypher", text: "MATCH (n) RETURN n LIMIT 10\n" },
+      { name: "smoke_python", ext: "py", type: "python", text: "def main(params):\n    return [{\"a\": 1}]\n" },
+      {
+        name: "smoke_llm",
+        ext: "llm.md",
+        type: "llm",
+        text: "---\nllmConfig:\n  output_columns:\n    - { name: answer, type: string }\n---\nSay hello.\n",
+      },
+      { name: "smoke_context", ext: "context.yaml", type: "context", text: "contextMode: dynamic\nquery: refund policy\ntop_k: 3\n" },
+    ];
+    for (const c of cases) await vscode.workspace.fs.writeFile(file(c.name, c.ext), encoder.encode(c.text));
+    const stored = await px.concepts.list(ontologyId);
+    for (const c of cases) {
+      const concept = stored.find((x) => x.predicate_name === c.name);
+      assert.strictEqual(concept?.concept_type, c.type, `${c.name}: ${JSON.stringify(concept)}`);
+    }
+    const llm = stored.find((x) => x.predicate_name === "smoke_llm");
+    assert.deepStrictEqual(llm.concept_config.output_columns, [{ name: "answer", type: "string" }]);
+    const context = stored.find((x) => x.predicate_name === "smoke_context");
+    assert.strictEqual(context.concept_config.mode, "dynamic");
+    assert.strictEqual(context.concept_config.query, "refund policy");
+    // Read back as the same files.
+    assert.match(decoder.decode(await vscode.workspace.fs.readFile(file("smoke_python", "py"))), /def main\(params\)/);
+    const llmFile = decoder.decode(await vscode.workspace.fs.readFile(file("smoke_llm", "llm.md")));
+    assert.match(llmFile, /^---\nllmConfig:[\s\S]*name: answer[\s\S]*---\nSay hello\.\n?$/);
+    assert.strictEqual(decoder.decode(await vscode.workspace.fs.readFile(file("smoke_context", "context.yaml"))),
+      "contextMode: dynamic\nquery: refund policy\ntop_k: 3\n");
+    const listed = (await vscode.workspace.fs.readDirectory(dir())).map(([name]) => name);
+    for (const c of cases) assert.ok(listed.includes(`${c.name}.${c.ext}`), JSON.stringify(listed));
+    for (const c of cases) await vscode.workspace.fs.delete(file(c.name, c.ext));
+  });
+
   test("compute: auto-selects the running machine and sends it with runs", async () => {
     const machines = await api.computes.refresh();
     assert.deepStrictEqual(machines.map((m) => [m.name, m.state]), [["PX_4_16_GP", "started"], ["PX_8_32_GP", "stopped"]]);

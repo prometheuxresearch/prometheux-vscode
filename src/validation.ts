@@ -41,6 +41,11 @@ export class PlatformValidator implements vscode.Disposable {
     if (!concept && document.languageId !== LANGUAGE_ID) return;
     const existing = concept ? await this.store.findConcept(concept.ontologyId, concept.conceptName) : undefined;
     const conceptType = existing?.concept_type ?? (concept ? typeForExtension(concept.ext) : "logic");
+    // A prompt (llm) or a note selection (context) is not a program: nothing to validate.
+    if (conceptType === "llm" || conceptType === "context") {
+      this.diagnostics.delete(document.uri);
+      return;
+    }
 
     const result = await this.connections.requireClient().vadalog.validate(document.getText(), {
       conceptType,

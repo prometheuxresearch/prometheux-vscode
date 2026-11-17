@@ -31,7 +31,9 @@ run it on Prometheux or on the Prometheux engine inside Palantir Foundry.
 ### Prometheux platform (Prometheux accounts)
 
 - **Platform** view: browse ontologies and concepts, open them as files, edit and save, create,
-  rename and delete concepts, run them with live status and paged results.
+  rename and delete concepts, run them with live status and paged results. All six concept types:
+  Logic (`.vada`), SQL, Cypher, Python, LLM (`.llm.md`, settings as front matter) and Context
+  (`.context.yaml`), in the same formats as `px pull`.
 - **Local → Ontologies**: download an ontology into the workspace (`px pull`), edit it as files in
   git, review the changes (`px plan`) and apply them back (`px apply`, with a snapshot first).
   Running a downloaded concept uses your local copies of the concepts it depends on.

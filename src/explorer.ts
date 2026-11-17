@@ -8,6 +8,8 @@ const CONCEPT_ICONS: Record<string, string> = {
   sql: "database",
   python: "symbol-method",
   cypher: "type-hierarchy",
+  context: "note",
+  llm: "sparkle",
 };
 
 export class OntologyItem extends vscode.TreeItem {

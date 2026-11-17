@@ -39,6 +39,17 @@ The **Prometheux** view in the activity bar has two parts, one per way of workin
   `Cmd/Ctrl+Shift+Enter` runs it, with live status and paged results in the
   **Prometheux → Results** panel. New, rename and delete work too. This is the web app's editing
   loop, in VS Code.
+  Every concept type can be created and edited, each as a file in the same format `px pull`
+  writes:
+
+  | Type | File | Contents |
+  | --- | --- | --- |
+  | Logic | `.vada` | Vadalog rules |
+  | SQL | `.sql` | the query |
+  | Cypher | `.cypher` | the query |
+  | Python | `.py` | a script whose `main(params)` returns the rows |
+  | LLM | `.llm.md` | YAML front matter (`llmConfig`: `output_columns`, `provider`, `model`, …), then the prompt, with `{{concept}}` placeholders |
+  | Context | `.context.yaml` | `contextMode: static` with `noteIds`, or `contextMode: dynamic` with `query`, `top_k`, `kinds` |
 - **Local → Ontologies**: platform ontologies downloaded as files with **Download to Workspace**
   (the cloud icon on an ontology). The files are what `px pull` writes
   (`ontologies/<slug>/prometheux.yaml`, `concepts/*.vadalog`, …), so you can version them in git
@@ -179,7 +190,6 @@ programs and a chain of four (one reading from two), with the expected results i
   predicates that clash between concepts are renamed, and a concept read through fewer columns
   than it has gets an adapter rule (the platform reads its stored table's leading columns). The
   upstream concepts' `@post` annotations do not apply, since nothing is materialized.
-- New concepts can be Vadalog or SQL; other concept types open with their stored source but are untested.
 
 ## Development
 
