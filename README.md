@@ -1,5 +1,17 @@
 # Prometheux for VS Code
 
+## Install
+
+```bash
+git clone https://github.com/prometheuxresearch/prometheux-vscode.git
+cd prometheux-vscode
+./install.sh
+```
+
+`install.sh` builds the extension and installs it into VS Code (or Cursor / VSCodium; pick one
+with `EDITOR_CLI=cursor ./install.sh`). It needs Node.js 22+. Then reload the editor:
+`Cmd/Ctrl+Shift+P` → **Developer: Reload Window**. To update later: `git pull && ./install.sh`.
+
 Write [Vadalog](https://docs.prometheux.ai) with full language support and run it on
 [Prometheux](https://www.prometheux.ai) (Cloud, self-hosted / BYOC or a local backend) or on the
 Prometheux engine inside **Palantir Foundry**. Browse and edit the ontologies and concepts on your
@@ -22,15 +34,7 @@ you work with and switch between them from the status bar.
 
 ## Getting started
 
-To install from a clone of this repository (needs Node.js 22+):
-
-```bash
-git clone https://github.com/prometheuxresearch/prometheux-vscode.git
-cd prometheux-vscode
-./install.sh        # builds the extension and installs it into VS Code (or Cursor / VSCodium)
-```
-
-Then reload the editor (`Cmd/Ctrl+Shift+P` → **Developer: Reload Window**) and:
+After installing:
 
 1. Open the **Prometheux** view in the activity bar and click **Add Prometheux Account** or **Add
    Palantir Foundry Account** (see [Accounts](#accounts) for what each needs).
